@@ -1,0 +1,16 @@
+# Build results
+bin/
+obj/
+
+# Rider files
+.idea/
+
+# User-specific files
+*.user
+*.suo
+
+# VSCode files
+.vscode/
+
+# Dependency folders
+packages/
