@@ -47,11 +47,14 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
                         var fileContent = new StreamContent(memoryStream);
                         fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(GetContentType(Path.GetExtension(filePath)));
 
-                        formContent.Add(fileContent, "File", fileName);
-                        formContent.Add(new StringContent("https://localhost:44365/api/Callback/receive"), "CallbackUrl");
+                        formContent.Add(fileContent, "audioFile", fileName);
+                        formContent.Add(new StringContent("https://localhost:44365/api/Callback/receive"), "webhookUrl");
+                        formContent.Add(new StringContent("string"), "TranscriptionType");
 
                         var client = _httpClientFactory.CreateClient();
-                        var response = await client.PostAsync("https://localhost:44365/api/Audio/upload", formContent, stoppingToken);
+                        client.DefaultRequestHeaders.Add("TenantId", "1");
+
+                        var response = await client.PostAsync("https://localhost:44386/api/Transcribe", formContent, stoppingToken);
 
                         if (response.IsSuccessStatusCode)
                         {
