@@ -15,7 +15,7 @@ public class AudioFileService: IAudioFileService
         _context = context;
     }
 
-    public async Task<AudioFileMeta?> GetAudioFileByProcessedGuidAsync(Guid guid)
+    public async Task<AudioFileMeta?> GetAudioFileByProcessedGuidAsync(long guid)
     {
         return await _context.AudioFiles
             .Where(a => a.ProcessedFileGuid == guid)

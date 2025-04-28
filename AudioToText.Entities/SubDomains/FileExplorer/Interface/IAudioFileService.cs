@@ -4,5 +4,5 @@ namespace AudioToText.Entities.SubDomains.FileExplorer.Interface;
 
 public interface IAudioFileService
 {
-    Task<AudioFileMeta?> GetAudioFileByProcessedGuidAsync(Guid guid);
+    Task<AudioFileMeta?> GetAudioFileByProcessedGuidAsync(long guid);
 }

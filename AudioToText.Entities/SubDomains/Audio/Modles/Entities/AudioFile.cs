@@ -18,7 +18,7 @@ namespace AudioToText.Entities.SubDomains.Audio.Modles
 
         public string Status { get; set; } = "Pending";
 
-        public Guid? ProcessedFileGuid { get; set; }
+        public long? ProcessedFileGuid { get; set; }
 
         public string? Transcription { get; set; }  
 

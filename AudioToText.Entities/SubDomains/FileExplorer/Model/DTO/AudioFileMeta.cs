@@ -2,7 +2,7 @@
 
 public class AudioFileMeta
 {
-    public Guid? Guid { get; set; }
+    public long? Guid { get; set; }
     public string FileName { get; set; }
     public DateTime ReceivedAt { get; set; }
     public DateTime? ConvertedAt { get; set; }

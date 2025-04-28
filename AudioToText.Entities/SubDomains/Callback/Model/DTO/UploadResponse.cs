@@ -2,7 +2,7 @@
 
 public class UploadResponse
 {
-    public Guid guideId { get; set; }
+    public long guideId { get; set; }
     public string message{get;set;}
     
 }

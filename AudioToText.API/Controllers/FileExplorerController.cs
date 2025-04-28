@@ -37,7 +37,7 @@ public class FileExplorerController: ControllerBase
     }
     
     [HttpGet("GetByProcessedGuid/{guid}")]
-    public async Task<IActionResult> GetByProcessedGuid(Guid guid)
+    public async Task<IActionResult> GetByProcessedGuid(long guid)
     {
         var audioFile = await _audioFileService.GetAudioFileByProcessedGuidAsync(guid);
 
