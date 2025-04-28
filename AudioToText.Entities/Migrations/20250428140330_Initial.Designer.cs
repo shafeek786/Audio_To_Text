@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AudioToText.Entities.Migrations
 {
     [DbContext(typeof(AudioDbContext))]
-    [Migration("20250421095746_AddConvertedAtToAudioFiles")]
-    partial class AddConvertedAtToAudioFiles
+    [Migration("20250428140330_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,8 +44,8 @@ namespace AudioToText.Entities.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("ProcessedFileGuid")
-                        .HasColumnType("uuid");
+                    b.Property<long?>("ProcessedFileGuid")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("ReceivedAt")
                         .HasColumnType("timestamp with time zone");

@@ -20,9 +20,10 @@ namespace AudioToText.Entities.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     AudioFilePath = table.Column<string>(type: "text", nullable: false),
                     FileName = table.Column<string>(type: "text", nullable: false),
-                    UploadedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ReceivedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ConvertedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Status = table.Column<string>(type: "text", nullable: false),
-                    ProcessedFileGuid = table.Column<Guid>(type: "uuid", nullable: true),
+                    ProcessedFileGuid = table.Column<long>(type: "bigint", nullable: true),
                     Transcription = table.Column<string>(type: "text", nullable: true),
                     SrtText = table.Column<string>(type: "text", nullable: true),
                     RetryCount = table.Column<int>(type: "integer", nullable: false)

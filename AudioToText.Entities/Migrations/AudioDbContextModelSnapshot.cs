@@ -41,8 +41,8 @@ namespace AudioToText.Entities.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("ProcessedFileGuid")
-                        .HasColumnType("uuid");
+                    b.Property<long?>("ProcessedFileGuid")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("ReceivedAt")
                         .HasColumnType("timestamp with time zone");
