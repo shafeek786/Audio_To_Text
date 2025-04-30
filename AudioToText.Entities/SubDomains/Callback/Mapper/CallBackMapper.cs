@@ -12,7 +12,7 @@ public static class CallBackMapper
             Guid = result.Id,
             Transcription = result.TextResult,
             ConvertedAt = result.ProcessedAt,
-            Srt = "dummy srt"
+            Srt = string.Empty
         };
     }
 }

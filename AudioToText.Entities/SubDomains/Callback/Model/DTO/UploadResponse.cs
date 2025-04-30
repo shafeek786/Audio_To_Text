@@ -2,7 +2,7 @@
 
 public class UploadResponse
 {
-    public long guideId { get; set; }
-    public string message{get;set;}
-    
+    public long id { get; set; }
+    public string message { get; set; } = string.Empty;
+
 }
