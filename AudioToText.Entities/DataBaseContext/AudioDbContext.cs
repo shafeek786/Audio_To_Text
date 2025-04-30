@@ -34,4 +34,10 @@ public class AudioDbContext : DbContext
             optionsBuilder.UseNpgsql(connectionString);
         }
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AudioFile>().HasIndex(x => x.ProcessedFileGuid).IsUnique();
+        base.OnModelCreating(modelBuilder);
+    }
 }

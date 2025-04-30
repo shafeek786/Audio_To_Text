@@ -118,6 +118,18 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
 
             using var dbScope = _services.CreateScope();
             var audioRepository = dbScope.ServiceProvider.GetRequiredService<IAudioRepository>();
+            var existing = await audioRepository.FindByGuidAsync(result.id);
+            if (existing != null)
+            {
+                _logger.LogWarning("⚠️ Duplicate ProcessedFileGuid detected: {Guid}.", result?.id);
+                if (File.Exists(completedFilePath))
+                {
+                    File.Delete(completedFilePath);
+                    _logger.LogInformation("🗑️ Deleted duplicate processed file: {CompletedFilePath}.", completedFilePath);
+                }
+                return;
+            }
+
 
             var audioFile = new AudioFile
             {

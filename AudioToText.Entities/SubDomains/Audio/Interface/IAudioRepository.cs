@@ -6,4 +6,5 @@ public interface IAudioRepository
 {
     Task<AudioFile> AddAsync(AudioFile audioFile);
     List<AudioFile> GetAll();
+    Task<AudioFile?> FindByGuidAsync(long processedFileGuid);
 }
