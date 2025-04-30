@@ -13,6 +13,7 @@ using AudioToText.Entities.SubDomains.FileExplorer.Interface;
 using AudioToText.Entities.SubDomains.FileExplorer.Services;
 using AudioToText.Entities.SubDomains.Queue.Interface;
 using AudioToText.Entities.SubDomains.Queue.Services;
+using AudioToText.Entities.TranscriptionServiceOptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +51,9 @@ builder.Services.AddHttpClient();
 
 builder.Services.Configure<AudioWatcherOptions>(
     builder.Configuration.GetSection("AudioWatcher")
+    );
+builder.Services.Configure<TranscriptionServiceOptions>(
+    builder.Configuration.GetSection("TranscriptionService")
     );
 var app = builder.Build();
 

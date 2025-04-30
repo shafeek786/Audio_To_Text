@@ -8,6 +8,7 @@ using AudioToText.Entities.SubDomains.Queue.Interface;
 using AudioToText.Entities.SubDomains.Audio.Modles;
 using AudioToText.Entities.SubDomains.Audio.Modles.DTO;
 using AudioToText.Entities.SubDomains.Callback.Model.DTO;
+using Microsoft.Extensions.Options;
 
 namespace AudioToText.Entities.SubDomains.Audio.Services
 {
@@ -16,19 +17,19 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
         private readonly ILogger<AudioQueueProcessorService> _logger;
         private readonly IServiceProvider _services;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly TranscriptionServiceOptions.TranscriptionServiceOptions _options;
 
-        private const string WebhookUrl = "https://localhost:44365/api/Callback/receive";
-        private const string TranscriptionType = "string"; // Update with your actual type if needed
-        private const string TranscribeApiUrl = "https://localhost:44386/api/Transcribe";
 
         public AudioQueueProcessorService(
             ILogger<AudioQueueProcessorService> logger,
             IServiceProvider services,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            IOptions<TranscriptionServiceOptions.TranscriptionServiceOptions> options )
         {
             _logger = logger;
             _services = services;
             _httpClientFactory = httpClientFactory;
+            _options = options.Value;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -55,9 +56,9 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
                     var client = _httpClientFactory.CreateClient();
 
                     using var formContent = await BuildFormContentAsync(filePath);
-                    client.DefaultRequestHeaders.Add("TenantId", "1");
+                    client.DefaultRequestHeaders.Add("TenantId", _options.TenantId);
 
-                    var response = await client.PostAsync(TranscribeApiUrl, formContent, stoppingToken);
+                    var response = await client.PostAsync(_options.ApiUrl, formContent, stoppingToken);
 
                     _logger.LogInformation($"Transcribe response@@@@@@@@@@@@@@@@@@@@@@@@@@: {response}");
                     Console.WriteLine($"Transcribe response################: {response}");
@@ -65,16 +66,10 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
                     {
                         var resultJson = await response.Content.ReadAsStringAsync(stoppingToken);
                         _logger.LogInformation($"Transcribe response========================>: {resultJson}");
-                        var resultresponse = JsonSerializer.Deserialize<TranscriptionResponse>(resultJson);
-                        _logger.LogInformation($"Transcribe response###############: {resultresponse}");
-                        var result = new UploadResponse
-                        {
-                            guideId = resultresponse.id,
-                            message = "File received. Processing started"
-                        };
-                            
-                        _logger.LogInformation($"{result.guideId}-------------------------------------->");
-                        
+                        var result = JsonSerializer.Deserialize<UploadResponse>(resultJson);
+                        _logger.LogInformation($"Transcribe response###############: {result}");
+                        _logger.LogInformation($"{result.id}-------------------------------------->");
+
 
                         await HandleSuccessAsync(filePath, result);
                     }
@@ -103,8 +98,7 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
             fileContent.Headers.ContentType = new MediaTypeHeaderValue(GetContentType(Path.GetExtension(filePath)));
 
             formContent.Add(fileContent, "audioFile", fileName);
-            formContent.Add(new StringContent(WebhookUrl), "webhookUrl");
-            formContent.Add(new StringContent(TranscriptionType), "TranscriptionType");
+            formContent.Add(new StringContent(_options.WebhookUrl), "webhookUrl");
 
             return formContent;
         }
@@ -129,8 +123,8 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
             {
                 AudioFilePath = completedFilePath,
                 FileName = Path.GetFileName(originalFilePath),
-                ProcessedFileGuid = result?.guideId,
-                Status = "Processed",
+                ProcessedFileGuid = result?.id,
+                Status = "InQueue",
                 ConvertedAt = DateTime.UtcNow,
                 Transcription = string.Empty
             };
