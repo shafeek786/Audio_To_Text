@@ -4,9 +4,11 @@ using System.Text.Json;
 using AudioToText.Entities.SubDomains.Audio.Interface;
 using AudioToText.Entities.SubDomains.Audio.Modles;
 using AudioToText.Entities.SubDomains.Audio.Modles.DTO;
+using AudioToText.Entities.SubDomains.Queue.Model.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AudioToText.Entities.SubDomains.Audio.Services
 {
@@ -16,21 +18,28 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
         private readonly ILogger<AudioService> _logger;
         private readonly string _pythonPath;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly AudioServiceSettingsDTO _settings;
 
         public AudioService(
             IAudioRepository audioRepository,
             ILogger<AudioService> logger,
             IConfiguration configuration,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            IOptions<AudioServiceSettingsDTO> settings)
         {
             _audioRepository = audioRepository;
             _logger = logger;
             _pythonPath = configuration["PythonSettings:PythonExePath"];
             _httpClientFactory = httpClientFactory;
+            _settings = settings.Value;
 
             if (string.IsNullOrWhiteSpace(_pythonPath))
             {
                 throw new InvalidOperationException("Python executable path is not configured.");
+            }
+            if (string.IsNullOrWhiteSpace(_settings.TranscriptionApiUrl))
+            {
+                throw new InvalidOperationException("Transcription API URL is not configured.");
             }
         }
 
@@ -65,15 +74,7 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
 
             var guideId = Guid.NewGuid();
 
-            // var audio = new AudioFile
-            // {
-            //     FileName = file.FileName,
-            //     Transcription = string.Empty,
-            //     AudioFilePath = tempFilePath,
-            //     ProcessedFileGuid = guideId
-            // };
-            //
-            // await _audioRepository.AddAsync(audio).ConfigureAwait(false);
+           
             return guideId;
         }
 
@@ -184,7 +185,7 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
 
             multipartContent.Add(fileContent, "audio", Path.GetFileName(filePath));
 
-            var response = await client.PostAsync("http://localhost:5000/transcribe", multipartContent).ConfigureAwait(false);
+            var response = await client.PostAsync(_settings.TranscriptionApiUrl, multipartContent).ConfigureAwait(false);
             var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)

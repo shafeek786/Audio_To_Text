@@ -6,7 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using AudioToText.Entities.SubDomains.Audio.Modles;
 using AudioToText.Entities.SubDomains.Callback.Model.DTO;
+using AudioToText.Entities.SubDomains.Queue.Model.DTO;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace AudioToText.Entities.SubDomains.Audio.Services
 {
@@ -15,12 +18,17 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
         private readonly ILogger<AudioQueueProcessorService> _logger;
         private readonly IServiceProvider _services;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly AudioServiceSettingsDTO _settings;
 
-        public AudioQueueProcessorService(ILogger<AudioQueueProcessorService> logger, IServiceProvider services, IHttpClientFactory httpClientFactory)
+        public AudioQueueProcessorService(ILogger<AudioQueueProcessorService> logger, 
+            IServiceProvider services, 
+            IHttpClientFactory httpClientFactory,
+            IOptions<AudioServiceSettingsDTO> settings)
         {
             _logger = logger;
             _services = services;
             _httpClientFactory = httpClientFactory;
+            _settings = settings.Value;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -33,7 +41,7 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 var filePath = await queue.DequeueAsync(stoppingToken);
-
+Console.WriteLine("");
                 if (filePath != null)
                 {
                     try
@@ -48,11 +56,10 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
                         fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(GetContentType(Path.GetExtension(filePath)));
 
                         formContent.Add(fileContent, "File", fileName);
-                        formContent.Add(new StringContent("https://localhost:44365/api/Callback/receive"), "CallbackUrl");
-
+                        formContent.Add(new StringContent(_settings.CallbackUrl), "CallbackUrl");
                         var client = _httpClientFactory.CreateClient();
-                        var response = await client.PostAsync("https://localhost:44365/api/Audio/upload", formContent, stoppingToken);
-
+                        //var response = await client.PostAsync("https://localhost:44365/api/Audio/upload", formContent, stoppingToken);
+                        var response = await client.PostAsync(_settings.UploadUrl, formContent, stoppingToken);
                         if (response.IsSuccessStatusCode)
                         {
                             var resultJson = await response.Content.ReadAsStringAsync();
@@ -64,13 +71,6 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
 
                             if (!Directory.Exists(completedDir))
                                 Directory.CreateDirectory(completedDir);
-
-                            // Append timestamp to avoid overwriting
-                            // var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
-                            // var completedFilePath = Path.Combine(
-                            //     completedDir,
-                            //     $"{Path.GetFileNameWithoutExtension(fileName)}_{timestamp}{Path.GetExtension(fileName)}"
-                            // );
             
                             var completedFilePath = Path.Combine(completedDir, fileName);
                             File.Move(filePath, completedFilePath);
@@ -85,7 +85,7 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
                             {
                                 AudioFilePath = completedFilePath,
                                 FileName = fileName, 
-                                ProcessedFileGuid = result?.guideId,
+                                ProcessedFileGuid = result.guideId,
                                 Status = "Processed",
                                 ConvertedAt = DateTime.UtcNow,
                                 Transcription = ""

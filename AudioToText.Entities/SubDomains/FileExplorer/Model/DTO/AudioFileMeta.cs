@@ -14,7 +14,7 @@ public class AudioFileMeta
     
     public string Status { get; set; }
     
-    
+    public List<SrtSegmentDto> SrtSegments { get; set; } = new List<SrtSegmentDto>();
 }
 
 

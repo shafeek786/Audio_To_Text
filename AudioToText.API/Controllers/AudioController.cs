@@ -21,6 +21,12 @@ public class AudioController: ControllerBase
         _webHostEnvironment = webHostEnvironment;
     }
 
+    [HttpGet("test")]
+    public async Task<IActionResult> Test()
+    {
+        return Ok(new { Message = "Test endpoint reached successfully." });
+    }
+    
     [HttpPost("upload")]
     public async Task<IActionResult> Upload([FromForm] UploadAudioPayload payload)
     // public async Task<IActionResult> UploadWithCallback([FromForm] IFormFile file, [FromForm] string callbackUrl)

@@ -24,7 +24,7 @@ public class CallbackService:ICallbackService
             var result = await _repository.SaveCallbackAsync(payload);
             if (result)
             {
-                _logger.LogInformation($"Callback saved for file {payload.Transcription} with GUID {payload.Guid}");
+                _logger.LogInformation($"Callback saved for file {payload} with GUID {payload.Guid}");
             }
             else
             {

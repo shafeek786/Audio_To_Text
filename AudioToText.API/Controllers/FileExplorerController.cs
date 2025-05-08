@@ -47,4 +47,20 @@ public class FileExplorerController: ControllerBase
         return Ok(audioFile);
     }
     
+    [HttpGet("DownloadAudio/{guid}")]
+    public async Task<IActionResult> DownloadAudio(Guid guid)
+    {
+        var (filePath, fileName) = await _audioFileService.GetAudioFilePathByGuidAsync(guid);
+
+        if (filePath == null || !System.IO.File.Exists(filePath))
+        {
+            return NotFound(new { Message = "Audio file not found." });
+        }
+
+        var contentType = "audio/mpeg"; // Change if using other formats (e.g., "audio/wav")
+        var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+
+        return File(fileStream, contentType, fileName);
+    }
+
 }

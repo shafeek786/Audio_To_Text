@@ -14,6 +14,8 @@ public class AudioDbContext : DbContext
     }
 
     public DbSet<AudioFile> AudioFiles { get; set; }
+    
+    public DbSet<AudioFileSrtSegment> AudioFileSrtSegments { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
