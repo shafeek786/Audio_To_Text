@@ -41,7 +41,6 @@ namespace AudioToText.Entities.SubDomains.Audio.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 var filePath = await queue.DequeueAsync(stoppingToken);
-Console.WriteLine("");
                 if (filePath != null)
                 {
                     try
@@ -55,10 +54,9 @@ Console.WriteLine("");
                         var fileContent = new StreamContent(memoryStream);
                         fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(GetContentType(Path.GetExtension(filePath)));
 
-                        formContent.Add(fileContent, "File", fileName);
-                        formContent.Add(new StringContent(_settings.CallbackUrl), "CallbackUrl");
+                        formContent.Add(fileContent, "AudioFile", fileName);
                         var client = _httpClientFactory.CreateClient();
-                        //var response = await client.PostAsync("https://localhost:44365/api/Audio/upload", formContent, stoppingToken);
+                        client.DefaultRequestHeaders.Add("TenantId", _settings.TenantId);
                         var response = await client.PostAsync(_settings.UploadUrl, formContent, stoppingToken);
                         if (response.IsSuccessStatusCode)
                         {
@@ -79,14 +77,14 @@ Console.WriteLine("");
                             // Save to database
                             var dbScope = _services.CreateScope();
                             var audioService = dbScope.ServiceProvider.GetRequiredService<IAudioRepository>();
-                            _logger.LogInformation($"Deserialized result => GuideId: {result?.guideId} {result.message} {completedDir}");
+                            _logger.LogInformation($"Deserialized result => GuideId: {result?.id} {result.message} {completedDir}");
 
                             var audioFile = new AudioFile()
                             {
                                 AudioFilePath = completedFilePath,
                                 FileName = fileName, 
-                                ProcessedFileGuid = result.guideId,
-                                Status = "Processed",
+                                ProcessedFileId = result.id,
+                                Status = "InQueue",
                                 ConvertedAt = DateTime.UtcNow,
                                 Transcription = ""
                             };

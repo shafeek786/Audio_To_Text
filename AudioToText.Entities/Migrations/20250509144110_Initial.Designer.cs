@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AudioToText.Entities.Migrations
 {
     [DbContext(typeof(AudioDbContext))]
-    [Migration("20250422161209_Initial")]
+    [Migration("20250509144110_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -25,13 +25,44 @@ namespace AudioToText.Entities.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("AudioToText.Entities.SubDomains.Audio.Modles.AudioFile", b =>
+            modelBuilder.Entity("AudioFileSrtSegment", b =>
                 {
-                    b.Property<long>("AudioFileId")
+                    b.Property<long>("SegmentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("AudioFileId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("SegmentId"));
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("interval");
+
+                    b.Property<long>("ProcessedFileGuid")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("SegmentOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("interval");
+
+                    b.Property<string>("TranscriptText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("SegmentId");
+
+                    b.HasIndex("ProcessedFileGuid");
+
+                    b.ToTable("AudioFileSrtSegments");
+                });
+
+            modelBuilder.Entity("AudioToText.Entities.SubDomains.Audio.Modles.AudioFile", b =>
+                {
+                    b.Property<long>("ProcessedFileGuid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("ProcessedFileGuid"));
 
                     b.Property<string>("AudioFilePath")
                         .IsRequired()
@@ -43,9 +74,6 @@ namespace AudioToText.Entities.Migrations
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<Guid?>("ProcessedFileGuid")
-                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("ReceivedAt")
                         .HasColumnType("timestamp with time zone");
@@ -63,38 +91,25 @@ namespace AudioToText.Entities.Migrations
                     b.Property<string>("Transcription")
                         .HasColumnType("text");
 
-                    b.HasKey("AudioFileId");
+                    b.HasKey("ProcessedFileGuid");
 
                     b.ToTable("AudioFiles");
                 });
 
-            modelBuilder.Entity("AudioToText.Entities.SubDomains.Audio.Modles.AudioFileSrtSegment", b =>
+            modelBuilder.Entity("AudioFileSrtSegment", b =>
                 {
-                    b.Property<long>("SegmentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.HasOne("AudioToText.Entities.SubDomains.Audio.Modles.AudioFile", "AudioFile")
+                        .WithMany("AudioFileSrtSegments")
+                        .HasForeignKey("ProcessedFileGuid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("SegmentId"));
+                    b.Navigation("AudioFile");
+                });
 
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("interval");
-
-                    b.Property<Guid>("ProcessedFileGuid")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("SegmentOrder")
-                        .HasColumnType("integer");
-
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("interval");
-
-                    b.Property<string>("TranscriptText")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("SegmentId");
-
-                    b.ToTable("AudioFileSrtSegments");
+            modelBuilder.Entity("AudioToText.Entities.SubDomains.Audio.Modles.AudioFile", b =>
+                {
+                    b.Navigation("AudioFileSrtSegments");
                 });
 #pragma warning restore 612, 618
         }

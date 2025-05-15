@@ -33,44 +33,48 @@ namespace AudioToText.Entities.SubDomains.FileExplorer.Services
 
         private async Task ProcessDirectory(string path, FolderAudioFilesResponse parentFolder)
         {
+            // ✅ Check for "completed" folder in current directory
+            var completedPath = Path.Combine(path, "completed");
+
+            if (Directory.Exists(completedPath))
+            {
+                var completedFiles = Directory.GetFiles(completedPath)
+                    .Where(f => IsSupportedAudioFile(f))
+                    .ToArray();
+
+
+                foreach (var filePath in completedFiles)
+                {
+                    var fileRecord = await _dbContext.AudioFiles
+                        .FirstOrDefaultAsync(f => f.AudioFilePath == filePath && f.Status == "Completed");
+
+                    if (fileRecord != null)
+                    {
+                        parentFolder.Files.Add(new AudioFileMeta
+                        {
+                            id = fileRecord.ProcessedFileId,
+                            FileName = fileRecord.FileName,
+                            FolderPath = fileRecord.AudioFilePath,
+                            ReceivedAt = fileRecord.ReceivedAt,
+                            ConvertedAt = fileRecord.ConvertedAt,
+                            Transcription = fileRecord.Transcription
+                        });
+                    }
+                }
+            }
+
+            // 🔁 Recurse into subdirectories
             var directories = Directory.GetDirectories(path);
 
             foreach (var directory in directories)
             {
                 var dirInfo = new DirectoryInfo(directory);
-                var completedPath = Path.Combine(directory, "completed");
-
                 var subFolder = new FolderAudioFilesResponse
                 {
                     Name = dirInfo.Name,
                     Path = dirInfo.FullName,
                     Type = "folder"
                 };
-
-                if (Directory.Exists(completedPath))
-                {
-                    var completedFiles = Directory.GetFiles(completedPath, "*.mp3");
-
-                    foreach (var filePath in completedFiles)
-                    {
-                        var fileRecord = await _dbContext.AudioFiles
-                            .FirstOrDefaultAsync(f => f.AudioFilePath == filePath && f.Status == "Completed");
-
-                        if (fileRecord != null)
-                        {
-                            subFolder.
-                                Files.Add(new AudioFileMeta
-                            {
-                                Guid = fileRecord.ProcessedFileGuid,
-                                FileName = fileRecord.FileName,
-                                FolderPath = fileRecord.AudioFilePath,
-                                ReceivedAt = fileRecord.ReceivedAt,
-                                ConvertedAt = fileRecord.ConvertedAt,
-                                Transcription = fileRecord.Transcription
-                            });
-                        }
-                    }
-                }
 
                 await ProcessDirectory(directory, subFolder);
 
@@ -80,5 +84,16 @@ namespace AudioToText.Entities.SubDomains.FileExplorer.Services
                 }
             }
         }
+        private static readonly HashSet<string> SupportedAudioExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".mp3", ".wav", ".flac", ".aac", ".ogg", ".m4a", ".wma", ".aiff", ".opus"
+        };
+
+        private bool IsSupportedAudioFile(string filePath)
+        {
+            var extension = Path.GetExtension(filePath);
+            return SupportedAudioExtensions.Contains(extension);
+        }
+
     }
 }

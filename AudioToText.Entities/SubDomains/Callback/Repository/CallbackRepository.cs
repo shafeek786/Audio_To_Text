@@ -24,11 +24,12 @@ namespace AudioToText.Entities.SubDomains.Callback.Repository
 
         public async Task<bool> SaveCallbackAsync(CallbackPayload payload)
         {
-            _logger.LogInformation($"Callback saved for file repository {payload.Guid} {payload.Srt}");
+            _logger.LogInformation($"Callback saved for file repository {payload.id} {payload.Srt}");
 
+            
             // Retrieve the audio file based on the provided Guid
             var audioFile = await _dbContext.AudioFiles
-                .FirstOrDefaultAsync(x => x.ProcessedFileGuid == payload.Guid);
+                .FirstOrDefaultAsync(x => x.ProcessedFileId == payload.id);
 
             if (audioFile == null) return false;
 
@@ -38,7 +39,7 @@ namespace AudioToText.Entities.SubDomains.Callback.Repository
             audioFile.Status = "Completed";
 
             // Parse the SRT text and create SRT segments
-            var srtSegments = ParseSrtText(payload.Srt, payload.Guid);
+            var srtSegments = ParseSrtText(payload.Srt, payload.id);
 
             _logger.LogInformation($"Parsed {srtSegments.Count} SRT segments.");
             foreach (var segment in srtSegments)
@@ -84,12 +85,12 @@ namespace AudioToText.Entities.SubDomains.Callback.Repository
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "❌ Error while moving file or updating DB for Guid: {Guid}", payload.Guid);
+                _logger.LogError(ex, "❌ Error while moving file or updating DB for Guid: {Guid}", payload.id);
                 return false;
             }
         }
 
-       private List<AudioFileSrtSegment> ParseSrtText(string srtText, Guid processedFileGuid)
+       private List<AudioFileSrtSegment> ParseSrtText(string srtText, long processedFileGuid)
 {
     var srtSegments = new List<AudioFileSrtSegment>();
 
@@ -119,7 +120,7 @@ namespace AudioToText.Entities.SubDomains.Callback.Repository
                 {
                     srtSegments.Add(new AudioFileSrtSegment()
                     {
-                        ProcessedFileGuid = processedFileGuid,
+                        ProcessedFileId = processedFileGuid,
                         StartTime = startTime,
                         EndTime = endTime,
                         TranscriptText = text
@@ -142,10 +143,10 @@ namespace AudioToText.Entities.SubDomains.Callback.Repository
 
 
         // Optional method to retrieve saved SRT segments for a specific processed file Guid
-        public async Task<List<AudioFileSrtSegment>> GetSrtSegments(Guid processedFileGuid)
+        public async Task<List<AudioFileSrtSegment>> GetSrtSegments(long processedFileGuid)
         {
             return await _dbContext.AudioFileSrtSegments
-                .Where(x => x.ProcessedFileGuid == processedFileGuid)
+                .Where(x => x.ProcessedFileId == processedFileGuid)
                 .ToListAsync();
         }
     }

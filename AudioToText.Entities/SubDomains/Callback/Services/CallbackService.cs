@@ -18,13 +18,13 @@ public class CallbackService:ICallbackService
 
     public async Task<bool> SaveCallbackAsync(CallbackPayload payload)
     {
-        _logger.LogInformation($"Callback saved for file pauload {payload}");
+        _logger.LogInformation($"Callback saved for file pauload {payload.id}");
         try
         {
             var result = await _repository.SaveCallbackAsync(payload);
             if (result)
             {
-                _logger.LogInformation($"Callback saved for file {payload} with GUID {payload.Guid}");
+                _logger.LogInformation($"Callback saved for file {payload} with GUID {payload.id}");
             }
             else
             {

@@ -2,7 +2,7 @@
 
 public class CallbackPayload
 {
-    public Guid Guid { get; set; }
+    public long id { get; set; }
     public string Transcription  { get; set; }
     
     public DateTime ConvertedAt { get; set; }

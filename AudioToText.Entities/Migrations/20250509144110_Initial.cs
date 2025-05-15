@@ -16,21 +16,20 @@ namespace AudioToText.Entities.Migrations
                 name: "AudioFiles",
                 columns: table => new
                 {
-                    AudioFileId = table.Column<long>(type: "bigint", nullable: false)
+                    ProcessedFileGuid = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     AudioFilePath = table.Column<string>(type: "text", nullable: false),
                     FileName = table.Column<string>(type: "text", nullable: false),
                     ReceivedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ConvertedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Status = table.Column<string>(type: "text", nullable: false),
-                    ProcessedFileGuid = table.Column<Guid>(type: "uuid", nullable: true),
                     Transcription = table.Column<string>(type: "text", nullable: true),
                     SrtText = table.Column<string>(type: "text", nullable: true),
                     RetryCount = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AudioFiles", x => x.AudioFileId);
+                    table.PrimaryKey("PK_AudioFiles", x => x.ProcessedFileGuid);
                 });
 
             migrationBuilder.CreateTable(
@@ -39,7 +38,7 @@ namespace AudioToText.Entities.Migrations
                 {
                     SegmentId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ProcessedFileGuid = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProcessedFileGuid = table.Column<long>(type: "bigint", nullable: false),
                     SegmentOrder = table.Column<int>(type: "integer", nullable: false),
                     StartTime = table.Column<TimeSpan>(type: "interval", nullable: false),
                     EndTime = table.Column<TimeSpan>(type: "interval", nullable: false),
@@ -48,17 +47,28 @@ namespace AudioToText.Entities.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AudioFileSrtSegments", x => x.SegmentId);
+                    table.ForeignKey(
+                        name: "FK_AudioFileSrtSegments_AudioFiles_ProcessedFileGuid",
+                        column: x => x.ProcessedFileGuid,
+                        principalTable: "AudioFiles",
+                        principalColumn: "ProcessedFileGuid",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AudioFileSrtSegments_ProcessedFileGuid",
+                table: "AudioFileSrtSegments",
+                column: "ProcessedFileGuid");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AudioFiles");
+                name: "AudioFileSrtSegments");
 
             migrationBuilder.DropTable(
-                name: "AudioFileSrtSegments");
+                name: "AudioFiles");
         }
     }
 }

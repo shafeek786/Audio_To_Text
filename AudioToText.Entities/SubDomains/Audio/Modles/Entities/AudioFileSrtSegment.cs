@@ -8,7 +8,7 @@ public class AudioFileSrtSegment
     public long SegmentId { get; set; }
 
     [Required]
-    public Guid ProcessedFileGuid { get; set; }
+    public long ProcessedFileId { get; set; }
 
     public int SegmentOrder { get; set; }
     public TimeSpan StartTime { get; set; }
@@ -17,6 +17,6 @@ public class AudioFileSrtSegment
     [Required]
     public string TranscriptText { get; set; }
 
-    [ForeignKey(nameof(ProcessedFileGuid))]
+    [ForeignKey(nameof(ProcessedFileId))]
     public AudioFile AudioFile { get; set; }
 }

@@ -42,7 +42,7 @@ public class CallbackFailureMonitorService : BackgroundService
                 {
                     _logger.LogWarning("🚨 File {FileName} not transcribed after 2 hours. Checking status...", audio.FileName);
 
-                    var statusCheckResponse = await httpClient.GetAsync($"https://your-api-server/api/Audio/status/{audio.ProcessedFileGuid}", stoppingToken);
+                    var statusCheckResponse = await httpClient.GetAsync($"https://your-api-server/api/Audio/status/{audio.ProcessedFileId}", stoppingToken);
 
                     if (statusCheckResponse.IsSuccessStatusCode)
                     {

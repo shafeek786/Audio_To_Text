@@ -7,7 +7,7 @@ namespace AudioToText.Entities.SubDomains.Audio.Modles
     public class AudioFile
     {
         [Key]
-        public Guid ProcessedFileGuid { get; set; }   // Primary Key
+        public long ProcessedFileId { get; set; }   // Primary Key
 
         public string AudioFilePath { get; set; }
         public string FileName { get; set; }

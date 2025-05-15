@@ -19,14 +19,14 @@ public class FileExplorerController: ControllerBase
         _audioFileService = audioFileService;
     }
     
-    [HttpGet("filestructure")]
-    public IActionResult GetFileStructure()
-    {
-        
-
-        var result = _fileExplorerService.GetDirectoryStructure();
-        return Ok(result);
-    }
+    // [HttpGet("filestructure")]
+    // public IActionResult GetFileStructure()
+    // {
+    //     
+    //
+    //     var result = _fileExplorerService.GetDirectoryStructure();
+    //     return Ok(result);
+    // }
     
     [HttpGet("completed-files")]
     public async Task<IActionResult> GetCompletedFiles()
@@ -37,7 +37,7 @@ public class FileExplorerController: ControllerBase
     }
     
     [HttpGet("GetByProcessedGuid/{guid}")]
-    public async Task<IActionResult> GetByProcessedGuid(Guid guid)
+    public async Task<IActionResult> GetByProcessedGuid(long guid)
     {
         var audioFile = await _audioFileService.GetAudioFileByProcessedGuidAsync(guid);
 
@@ -48,7 +48,7 @@ public class FileExplorerController: ControllerBase
     }
     
     [HttpGet("DownloadAudio/{guid}")]
-    public async Task<IActionResult> DownloadAudio(Guid guid)
+    public async Task<IActionResult> DownloadAudio(long guid)
     {
         var (filePath, fileName) = await _audioFileService.GetAudioFilePathByGuidAsync(guid);
 

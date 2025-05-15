@@ -15,14 +15,14 @@ namespace AudioToText.Entities.SubDomains.FileExplorer.Services
             _context = context;
         }
 
-        public async Task<AudioFileMeta?> GetAudioFileByProcessedGuidAsync(Guid guid)
+        public async Task<AudioFileMeta?> GetAudioFileByProcessedGuidAsync(long guid)
         {
             return await _context.AudioFiles
-                .Where(a => a.ProcessedFileGuid == guid)
+                .Where(a => a.ProcessedFileId == guid)
                 .Include(a => a.AudioFileSrtSegments)  // Include the related SRT segments
                 .Select(a => new AudioFileMeta()
                 {
-                    Guid = a.ProcessedFileGuid,
+                    id = a.ProcessedFileId,
                     FileName = a.FileName,
                     FolderPath = a.AudioFilePath,
                     ReceivedAt = a.ReceivedAt,
@@ -39,10 +39,10 @@ namespace AudioToText.Entities.SubDomains.FileExplorer.Services
                 .FirstOrDefaultAsync();
         }
         
-        public async Task<(string? FilePath, string? FileName)> GetAudioFilePathByGuidAsync(Guid guid)
+        public async Task<(string? FilePath, string? FileName)> GetAudioFilePathByGuidAsync(long guid)
         {
             var audioFile = await _context.AudioFiles
-                .Where(a => a.ProcessedFileGuid == guid)
+                .Where(a => a.ProcessedFileId == guid)
                 .Select(a => new { a.AudioFilePath, a.FileName })
                 .FirstOrDefaultAsync();
 

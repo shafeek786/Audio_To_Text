@@ -5,5 +5,7 @@ public class AudioServiceSettingsDTO
     public string UploadUrl { get; set; } = string.Empty;
     public string CallbackUrl { get; set; } = string.Empty;
     
-    public string TranscriptionApiUrl { get; set; }
+    public string TenantId { get; set; } = string.Empty;
+    
+    
 }
