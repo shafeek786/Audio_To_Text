@@ -19,7 +19,7 @@ public class CallbackController: ControllerBase
     [HttpPost("receive")]
     public async Task<IActionResult> ReceiveCallback([FromBody] CallbackPayload payload)
     {
-        if (!ModelState.IsValid) return BadRequest("Invalid data");
+        //if (!ModelState.IsValid) return BadRequest("Invalid data");
 
         var result = await _callbackService.SaveCallbackAsync(payload);
         return result ? Ok("Callback received and stored.") : NotFound("File not found.");

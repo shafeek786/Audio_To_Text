@@ -24,22 +24,22 @@ namespace AudioToText.Entities.SubDomains.Callback.Repository
 
         public async Task<bool> SaveCallbackAsync(CallbackPayload payload)
         {
-            _logger.LogInformation($"Callback saved for file repository {payload.id} {payload.Srt}");
+            _logger.LogInformation($"Callback saved for file repository {payload.Id} {payload.srt}");
 
             
             // Retrieve the audio file based on the provided Guid
             var audioFile = await _dbContext.AudioFiles
-                .FirstOrDefaultAsync(x => x.ProcessedFileId == payload.id);
+                .FirstOrDefaultAsync(x => x.ProcessedFileId == payload.Id);
 
             if (audioFile == null) return false;
 
             // Update the audio file with the received transcription and converted date
-            audioFile.Transcription = payload.Transcription;
+            audioFile.Transcription = payload.TextResult;
             audioFile.ConvertedAt = payload.ConvertedAt;
             audioFile.Status = "Completed";
 
             // Parse the SRT text and create SRT segments
-            var srtSegments = ParseSrtText(payload.Srt, payload.id);
+            var srtSegments = ParseSrtText(payload.srt, payload.Id);
 
             _logger.LogInformation($"Parsed {srtSegments.Count} SRT segments.");
             foreach (var segment in srtSegments)
@@ -85,7 +85,7 @@ namespace AudioToText.Entities.SubDomains.Callback.Repository
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "❌ Error while moving file or updating DB for Guid: {Guid}", payload.id);
+                _logger.LogError(ex, "❌ Error while moving file or updating DB for Guid: {Guid}", payload.Id);
                 return false;
             }
         }

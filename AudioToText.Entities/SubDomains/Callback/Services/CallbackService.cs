@@ -18,17 +18,18 @@ public class CallbackService:ICallbackService
 
     public async Task<bool> SaveCallbackAsync(CallbackPayload payload)
     {
-        _logger.LogInformation($"Callback saved for file pauload {payload.id}");
+        payload.ConvertedAt = DateTime.UtcNow;
+        _logger.LogInformation($"Callback saved for file pauload {payload.Id}");
         try
         {
             var result = await _repository.SaveCallbackAsync(payload);
             if (result)
             {
-                _logger.LogInformation($"Callback saved for file {payload} with GUID {payload.id}");
+                _logger.LogInformation($"Callback saved for file {payload} with GUID {payload.Id}");
             }
             else
             {
-                _logger.LogWarning($"Audio file {payload.Transcription} not found.");
+                _logger.LogWarning($"Audio file {payload.TextResult} not found.");
             }
 
             return result;

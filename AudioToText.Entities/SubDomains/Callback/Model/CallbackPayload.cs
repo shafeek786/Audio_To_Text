@@ -2,11 +2,11 @@
 
 public class CallbackPayload
 {
-    public long id { get; set; }
-    public string Transcription  { get; set; }
+    public long Id { get; set; }
+    public string TextResult  { get; set; }
     
-    public DateTime ConvertedAt { get; set; }
+    public DateTime? ConvertedAt { get; set; } = DateTime.UtcNow;
     
-    public string Srt { get; set; }
+    public string srt { get; set; }
     
 }
