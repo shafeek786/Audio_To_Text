@@ -7,6 +7,6 @@ public class CallbackPayload
     
     public DateTime? ConvertedAt { get; set; } = DateTime.UtcNow;
     
-    public string srt { get; set; }
+    public string Srt { get; set; }
     
 }

@@ -24,7 +24,7 @@ namespace AudioToText.Entities.SubDomains.Callback.Repository
 
         public async Task<bool> SaveCallbackAsync(CallbackPayload payload)
         {
-            _logger.LogInformation($"Callback saved for file repository {payload.Id} {payload.srt}");
+            _logger.LogInformation($"Callback saved for file repository {payload.Id} {payload.Srt}");
 
             
             // Retrieve the audio file based on the provided Guid
@@ -39,7 +39,7 @@ namespace AudioToText.Entities.SubDomains.Callback.Repository
             audioFile.Status = "Completed";
 
             // Parse the SRT text and create SRT segments
-            var srtSegments = ParseSrtText(payload.srt, payload.Id);
+            var srtSegments = ParseSrtText(payload.Srt, payload.Id);
 
             _logger.LogInformation($"Parsed {srtSegments.Count} SRT segments.");
             foreach (var segment in srtSegments)
