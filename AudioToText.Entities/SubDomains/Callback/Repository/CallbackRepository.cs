@@ -42,10 +42,6 @@ namespace AudioToText.Entities.SubDomains.Callback.Repository
             var srtSegments = ParseSrtText(payload.Srt, payload.Id);
 
             _logger.LogInformation($"Parsed {srtSegments.Count} SRT segments.");
-            foreach (var segment in srtSegments)
-            {
-                _logger.LogInformation($"Segment: {segment.StartTime} --> {segment.EndTime}, Text: {segment.TranscriptText}");
-            }
 
             // Save each segment to the AudioFileSrtSegment table
             await _dbContext.AudioFileSrtSegments.AddRangeAsync(srtSegments);
