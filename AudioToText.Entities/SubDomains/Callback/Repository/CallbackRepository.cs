@@ -24,7 +24,7 @@ namespace AudioToText.Entities.SubDomains.Callback.Repository
 
         public async Task<bool> SaveCallbackAsync(CallbackPayload payload)
         {
-            _logger.LogInformation($"Callback saved for file repository {payload.Id} {payload.Srt}");
+            _logger.LogInformation($"Callback saved for file repository {payload.Id}");
 
             
             // Retrieve the audio file based on the provided Guid

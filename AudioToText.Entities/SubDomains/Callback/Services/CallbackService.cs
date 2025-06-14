@@ -19,7 +19,7 @@ public class CallbackService:ICallbackService
     public async Task<bool> SaveCallbackAsync(CallbackPayload payload)
     {
         payload.ConvertedAt = DateTime.UtcNow;
-        _logger.LogInformation($"Callback saved for file pauload {payload.Id}");
+        _logger.LogInformation($"Callback saved for file payload {payload.Id}");
         try
         {
             var result = await _repository.SaveCallbackAsync(payload);
